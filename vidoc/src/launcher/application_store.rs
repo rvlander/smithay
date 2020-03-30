@@ -1,5 +1,6 @@
 extern crate freedesktop_entry_parser;
 extern crate dirs;
+extern crate linicon;
 
 use freedesktop_entry_parser::{parse_entry, SectionBytes, AttrBytes};
 
@@ -11,6 +12,8 @@ use std::process::Command;
 
 const SYSTEM_SEARCH_PATH: &str = "/usr/share/applications";
 const USER_SEARCH_PATH: &str = ".local/share/applications";
+const THEME: &str = "hicolor";
+const ICON_SIZE: u16 = 64u16;
 
 #[derive(Debug)]
 pub struct Application {
@@ -33,6 +36,15 @@ impl Application {
         .spawn()
         .expect("command failed to start");
     ()
+  }
+
+  pub fn lookup_icon(&self) -> Option<linicon::IconPath> {
+    self.icon.as_ref().and_then(|icon|{
+      match linicon::lookup_icon(THEME, icon, ICON_SIZE, 1u16) {
+        Ok(mut it) => it.next().and_then(|val| Some(val.unwrap())),
+        _ => None,
+      }
+    })
   }
 }
 
@@ -59,6 +71,7 @@ impl ApplicationStore {
           &app.icon.as_ref().unwrap()
       };
       println!("    - icon: {}", icon_str);
+      println!("    - icon_path: {:?}", app.lookup_icon());
     }
   }
 

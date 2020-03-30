@@ -7,26 +7,38 @@ use std::io;
 use std::fs::{self, read};
 use std::path::Path;
 use std::ffi::OsStr;
+use std::process::Command;
 
 const SYSTEM_SEARCH_PATH: &str = "/usr/share/applications";
 const USER_SEARCH_PATH: &str = ".local/share/applications";
 
 #[derive(Debug)]
-struct Application {
-  name: String,
-  exec: String,
-  icon: Option<String>
+pub struct Application {
+  pub name: String,
+  pub exec: String,
+  pub icon: Option<String>
 }
 
 impl Application {
   pub fn new(name: String, exec: String, icon: Option<String>) -> Self {
     Application {name, exec, icon}
   }
+
+  pub fn launch(&self) {
+    let mut parts = self.exec.split(" ").into_iter();
+    let cmd = parts.next().unwrap();
+    let args: Vec<_> = parts.collect();
+    Command::new(cmd)
+        .args(args)
+        .spawn()
+        .expect("command failed to start");
+    ()
+  }
 }
 
 #[derive(Debug)]
 pub struct ApplicationStore {
-  applications: Vec<Application>
+  pub applications: Vec<Application>
 }
 
 impl ApplicationStore {

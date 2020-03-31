@@ -19,12 +19,13 @@ const ICON_SIZE: u16 = 64u16;
 pub struct Application {
   pub name: String,
   pub exec: String,
-  pub icon: Option<String>
+  pub icon: Option<String>,
+  pub icon_path: Option<linicon::IconPath>
 }
 
 impl Application {
   pub fn new(name: String, exec: String, icon: Option<String>) -> Self {
-    Application {name, exec, icon}
+    Application {name, exec, icon, icon_path: None}
   }
 
   pub fn launch(&self) {
@@ -45,6 +46,10 @@ impl Application {
         _ => None,
       }
     })
+  }
+
+  pub fn populate_icon_path(&mut self) {
+     self.icon_path = self.lookup_icon()
   }
 }
 
@@ -131,6 +136,12 @@ impl ApplicationStore {
               ),
           _ => (),
         };
+    }
+  }
+
+  pub fn lookup_icons(&mut self) {
+    for app in self.applications.iter_mut() {
+      app.populate_icon_path()
     }
   }
 }

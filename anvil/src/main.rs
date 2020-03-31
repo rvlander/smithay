@@ -17,6 +17,7 @@ mod glium_drawer;
 mod input_handler;
 mod shell;
 mod shm_load;
+mod launcher;
 #[cfg(feature = "udev")]
 mod udev;
 mod window_map;

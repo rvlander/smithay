@@ -22,6 +22,7 @@ bitflags = "1.2.1"
 freedesktop_entry_parser = "0.2.0"
 dirs = "2.0.2"
 linicon = "0.3.0"
+image = "0.23.2"
 
 [dependencies.smithay]
 path = ".."

@@ -233,7 +233,7 @@ impl<F: GLGraphicsBackend + 'static> GliumDrawer<F> {
         surface_dimensions: (u32, u32),
         surface_location: (i32, i32),
         screen_size: (u32, u32),
-        blending: glium::Blend,
+        blending: Option<glium::Blend>,
     ) {
         let xscale = 2.0 * (surface_dimensions.0 as f32) / (screen_size.0 as f32);
         let mut yscale = -2.0 * (surface_dimensions.1 as f32) / (screen_size.1 as f32);
@@ -262,9 +262,12 @@ impl<F: GLGraphicsBackend + 'static> GliumDrawer<F> {
                 &self.index_buffer,
                 &self.programs[texture_kind],
                 &uniforms,
-                &glium::DrawParameters {
-                    blend: blending,
-                    ..Default::default()
+                &match blending {
+                    Some(blending) =>glium::DrawParameters {
+                      blend: blending,
+                      ..Default::default()
+                    },
+                    None => Default::default()
                 },
             )
             .unwrap();
@@ -273,6 +276,11 @@ impl<F: GLGraphicsBackend + 'static> GliumDrawer<F> {
     #[inline]
     pub fn draw(&self) -> Frame {
         self.display.draw()
+    }
+
+    pub fn texture_from_raw(&self, raw_data: Vec<u8>, dims: (u32, u32)) -> Texture2d{
+        let image = glium::texture::RawImage2d::from_raw_rgba(raw_data, dims);
+        Texture2d::new(&self.display, image).unwrap()
     }
 }
 
@@ -357,7 +365,7 @@ impl<F: GLGraphicsBackend + 'static> GliumDrawer<F> {
                             metadata.dimensions,
                             (x, y),
                             screen_dimensions,
-                            ::glium::Blend {
+                            Some(::glium::Blend {
                                 color: ::glium::BlendingFunction::Addition {
                                     source: ::glium::LinearBlendingFactor::One,
                                     destination: ::glium::LinearBlendingFactor::OneMinusSourceAlpha,
@@ -367,7 +375,7 @@ impl<F: GLGraphicsBackend + 'static> GliumDrawer<F> {
                                     destination: ::glium::LinearBlendingFactor::OneMinusSourceAlpha,
                                 },
                                 ..Default::default()
-                            },
+                            }),
                         );
                     }
                 }

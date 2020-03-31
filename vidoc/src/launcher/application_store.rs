@@ -49,7 +49,7 @@ impl Application {
   }
 
   pub fn populate_icon_path(&mut self) {
-     self.icon_path = self.lookup_icon()
+     self.icon_path = self.lookup_icon();
   }
 }
 

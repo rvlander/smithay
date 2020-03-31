@@ -1,5 +1,5 @@
 use std::{
-    cell::RefCell,
+    cell::{RefCell, Ref},
     rc::Rc,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -8,7 +8,7 @@ use std::{
 };
 
 use smithay::{
-    backend::{egl::EGLGraphicsBackend, graphics::gl::GLGraphicsBackend, input::InputBackend, winit},
+    backend::{winit::WinitGraphicsBackend, egl::EGLGraphicsBackend, graphics::gl::GLGraphicsBackend, input::InputBackend, winit},
     reexports::{
         calloop::EventLoop,
         wayland_server::{protocol::wl_output, Display},
@@ -29,6 +29,7 @@ use crate::input_handler::AnvilInputHandler;
 use crate::shell::init_shell;
 
 use crate::launcher::application_chooser::ApplicationChooser;
+use smithay::backend::graphics::glium::GliumGraphicsBackend;
 
 pub fn run_winit(display: &mut Display, event_loop: &mut EventLoop<()>, log: Logger) -> Result<(), ()> {
     let (renderer, mut input) = winit::init(log.clone()).map_err(|_| ())?;
@@ -144,8 +145,11 @@ pub fn run_winit(display: &mut Display, event_loop: &mut EventLoop<()>, log: Log
         pointer_location.clone(),
     ));
 
+
+    
+
     let mut app_chooser = ApplicationChooser::new();
-    app_chooser.init();
+    app_chooser.init(&drawer);
     info!(log, "Initialization completed, starting the main loop.");
 
     while running.load(Ordering::SeqCst) {
@@ -157,7 +161,7 @@ pub fn run_winit(display: &mut Display, event_loop: &mut EventLoop<()>, log: Log
             let mut frame = drawer.draw();
             frame.clear(None, Some((0.8, 0.8, 0.9, 1.0)), false, Some(1.0), None);
             
-            app_chooser.draw(&frame, &drawer);
+            app_chooser.draw(&mut frame, &drawer);
             /*
             // draw the windows
             drawer.draw_windows(&mut frame, &*window_map.borrow(), compositor_token);
